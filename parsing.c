@@ -38,7 +38,18 @@ int main(int argc, char** argv) {
     add_history(input);
 
     /* Echo input back to user */
-    printf("No you're a %s\n", input);
+    //printf("No you're a %s\n", input);
+    /* Attempt to Parse the User Input */
+    mpc_result_t r;
+    if (mpc_parse("<stdin>", input, Lispy, &r)) {
+      /* On Success print the AST */
+      mpc_ast_print(r.output);
+      mpc_ast_delete(r.output);
+    } else {
+      /* otherwise print the error */
+      mpc_err_print(r.error);
+      mpc_err_delete(r.error);
+    }
 
     free(input);
   }
