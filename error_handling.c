@@ -61,16 +61,16 @@ void lval_print(lval v) {
 void lval_println(lval v) { lval_print(v); putchar('\n'); }
 
 /* Use operator string to see which operation to perform */
-long eval_op(long x, char* op, long y) {
+lval eval_op(lval x, char* op, lval y) {
   
   /* If either value is an error return it */
   if (x.type == LVAL_ERR) { return x; }
   if (y.type == LVAL_ERR) { return y; }
 
   /* otherwise do maths on the number values */
-  if (strcmp(op, "+") == 0) { return x + y; }
-  if (strcmp(op, "-") == 0) { return x - y; }
-  if (strcmp(op, "*") == 0) { return x * y; }
+  if (strcmp(op, "+") == 0) { return lval_num(x.num + y.num); }
+  if (strcmp(op, "-") == 0) { return lval_num(x.num - y.num); }
+  if (strcmp(op, "*") == 0) { return lval_num(x.num * y.num); }
   if (strcmp(op, "/") == 0) {     
     /* If second operand is zero return error */
     return y.num == 0
@@ -80,18 +80,20 @@ long eval_op(long x, char* op, long y) {
   return lval_err(LERR_BAD_OP);
 }
 
-long eval(mpc_ast_t* t) {
-// TODO update eval() (got as far as eval_op on http://www.buildyourownlisp.com/chapter8_error_handling)
+lval eval(mpc_ast_t* t) {
   /* If tagged as number return it directly. */
   if (strstr(t->tag, "number")) {
-    return atoi(t->contents);
+    /* check if there was some error */
+    errno = 0;
+    long x = strtol(t->contents, NULL, 10);
+    return errno != ERANGE ? lval_num(x) : lval_err(LERR_BAD_NUM);
   }
 
   /* The operator is always second child. */
   char* op = t->children[1]->contents;
 
   /* We store the third child in `x` */
-  long x = eval(t->children[2]);
+  lval x = eval(t->children[2]);
 
   /* Iterate the remaining children and combining. */
   int i = 3;
@@ -138,8 +140,8 @@ int main(int argc, char** argv) {
     mpc_result_t r;
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
 
-      long result = eval(r.output);
-      printf("%li\n", result);
+      lval result = eval(r.output);
+      lval_println(result);
       mpc_ast_delete(r.output);
     } else {    
       mpc_err_print(r.error);
