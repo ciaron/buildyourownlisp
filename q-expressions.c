@@ -267,17 +267,16 @@ int main(int argc, char** argv) {
 
   /* Define them with the following Language */
   mpca_lang(MPCA_LANG_DEFAULT,
-    "                                                     \
-      number   : /-?[0-9]+/ ;                             \
-      symbol   : '+' | '-' | '*' | '/' ;                  \
-      sexpr    : '(' <expr>* ')';                         \
-      qexpr    : '{' <expr>* '}';                         \
-      expr     : <number> | <symbol> | <sexpr> | <qexpr>;  \
-      lispy    : /^/ <expr>* /$/ ;             \
+    "                                                             \
+      number   : /-?[0-9]+/ ;                                     \
+      symbol   : \"list\" | \"head\" | \"tail\"                   \
+                 | \"join\" | \"eval\" | '+' | '-' | '*' | '/' ;  \
+      sexpr    : '(' <expr>* ')';                                 \
+      qexpr    : '{' <expr>* '}';                                 \
+      expr     : <number> | <symbol> | <sexpr> | <qexpr>;         \
+      lispy    : /^/ <expr>* /$/ ;                                \
     ",
     Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
-
-
 
   /* Print Version and Exit Information */
   puts("Lispy Version 0.0.0.0.1");
